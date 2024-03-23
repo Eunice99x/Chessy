@@ -40,21 +40,25 @@ for (let i = 0; i < 8; i++) {
 }
 
 export default function Board() {
+  const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
   const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
+  const [gridX, setGirdX] = useState(0);
+  const [gridY, setGirdY] = useState(0);
   const boardRef = useRef<HTMLDivElement>(null);
-
-  let activePiece: HTMLElement | null = null;
-  let offsetX = 0;
-  let offsetY = 0;
 
   function grabPiece(e: React.MouseEvent) {
     const element = e.target as HTMLElement;
+    const chessBoard = boardRef.current;
+    let offsetX = 0;
+    let offsetY = 0;
 
-    if (element.classList.contains("piece")) {
+    if (element.classList.contains("piece") && chessBoard) {
+      setGirdX(Math.floor((e.clientX - chessBoard.offsetLeft) / 74.88));
+      setGirdY(Math.abs(Math.ceil((e.clientY - chessBoard.offsetTop - 599) / 74.88)));
       offsetX = e.clientX - element.getBoundingClientRect().left;
       offsetY = e.clientY - element.getBoundingClientRect().top;
 
-      activePiece = element;
+      setActivePiece(element);
     }
   }
 
@@ -99,7 +103,7 @@ export default function Board() {
       setPieces((value) => {
         const pieces = value.map((p) => {
           // the condition in the if is white night
-          if (p.x === 1 && p.y === 0) {
+          if (p.x === gridX && p.y === gridY) {
             p.x = x;
             p.y = y;
           }
@@ -108,7 +112,7 @@ export default function Board() {
         return pieces;
       });
 
-      activePiece = null;
+      setActivePiece(null);
     }
   }
 
